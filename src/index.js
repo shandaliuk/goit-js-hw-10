@@ -15,25 +15,30 @@ const onInput = event => {
   const input = event.target.value.trim();
 
   if (input === '') {
-    refs.countriesListElement.innerHTML = '';
+    clearElementsContent(refs.countriesListElement, refs.countryInfoElement);
     return;
   }
 
   fetchCountries(input)
     .then(result => {
       if (!result) {
+        clearElementsContent(
+          refs.countriesListElement,
+          refs.countryInfoElement
+        );
         return;
       }
       if (result.length === 1) {
-        refs.countriesListElement.innerHTML = '';
+        clearElementsContent(refs.countriesListElement);
         refs.countryInfoElement.innerHTML = createSingleCountryMarkup(
           result[0]
         );
         return;
       }
       if (result.length > 1 && result.length < 10) {
-        refs.countryInfoElement.innerHTML = '';
-        refs.countriesListElement.innerHTML = createCountriesMarkup(result);
+        clearElementsContent(refs.countryInfoElement);
+        refs.countriesListElement.innerHTML =
+          createMultipleCountriesMarkup(result);
         return;
       }
       if (result.length > 10) {
@@ -47,7 +52,7 @@ const onInput = event => {
 
 refs.inputElement.addEventListener('input', debounce(onInput, DEBOUNCE_DELAY));
 
-function createCountriesMarkup(countries) {
+function createMultipleCountriesMarkup(countries) {
   return countries
     .map(country => {
       return `<li class="country-list__item"><img src="${country.flags.svg}" alt="Flag of ${country.name}" class="country-list__flag"><p class="country-list__name">${country.name}</p></li>`;
@@ -67,4 +72,8 @@ function createSingleCountryMarkup(country) {
   }</span> people</p><p class="country-info__text">Languages:<span class="country-info__information">${country.languages.map(
     language => ' ' + language.name
   )}</span></p>`;
+}
+
+function clearElementsContent(...args) {
+  args.forEach(arg => (arg.innerHTML = ''));
 }
